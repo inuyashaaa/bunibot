@@ -139,12 +139,12 @@ app.post(URI, async (req, res) => {
 });
 
 const crawData = async (url) => {
-  const browserFetcher = puppeteer.createBrowserFetcher();
-  const revisionInfo = await browserFetcher.download("901912");
+  // const browserFetcher = puppeteer.createBrowserFetcher();
+  // const revisionInfo = await browserFetcher.download("901912");
   console.log("================================================");
   console.log("start lauch");
   console.log("================================================");
-  const browser = await puppeteer.launch({ args: ["--no-sandbox"], executablePath: revisionInfo.executablePath });
+  const browser = await puppeteer.launch({ args: ["--no-sandbox"] });
   console.log("================================================");
   console.log("Lauch done");
   console.log("================================================");
