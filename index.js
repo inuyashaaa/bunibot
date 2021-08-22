@@ -64,7 +64,7 @@ const reloadAndSendNewPrice = async (chatId, forceSend = false) => {
         text: `Buni THẤP: <b><i>${parseFloat(buniPrice).toFixed(3)}</i></b>\nCoinGeck: <i>${parseFloat(currentPrice).toFixed(
           3
         )}</i>\nThấp/Cao: <i>${lowPrice}</i>/<i>${highPrice}</i>`,
-        parse_mode: "markdown",
+        parse_mode: "html",
       });
       return;
     }
@@ -84,7 +84,7 @@ const reloadAndSendNewPrice = async (chatId, forceSend = false) => {
         text: `Buni hiện tại: <b><i>${parseFloat(buniPrice).toFixed(3)}</i></b>\nCoinGeck: <i>${parseFloat(currentPrice).toFixed(
           3
         )}</i>\nThấp/Cao: <i>${lowPrice}</i>/<i>${highPrice}</i>`,
-        parse_mode: "markdown",
+        parse_mode: "html",
       });
     }
   } catch (error) {
