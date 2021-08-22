@@ -26,33 +26,33 @@ const reloadAndSendNewPrice = async (chatId, forceSend = false) => {
   console.log("highPrice", highPrice);
   console.log("================================================");
   const response = await axios.get("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bunicorn");
-  const currentPrice = response?.data[0]?.current_price;
+  const currentPrice = response.data[0].current_price;
   if (parseFloat(currentPrice) < lowPrice) {
     await axios.post(`${TELEGRAM_API}/sendMessage`, {
       chat_id: chatId,
-      text: `Giá Buni THẤP hơn giá set: ${response?.data[0]?.current_price} ${lowPrice}/${highPrice}`,
+      text: `Giá Buni THẤP hơn giá set: ${response.data[0].current_price} ${lowPrice}/${highPrice}`,
     });
     return;
   }
   if (parseFloat(currentPrice) > highPrice) {
     await axios.post(`${TELEGRAM_API}/sendMessage`, {
       chat_id: chatId,
-      text: `Giá Buni CAO hơn giá set: ${response?.data[0]?.current_price} ${lowPrice}/${highPrice}`,
+      text: `Giá Buni CAO hơn giá set: ${response.data[0].current_price} ${lowPrice}/${highPrice}`,
     });
     return;
   }
   if (forceSend) {
     await axios.post(`${TELEGRAM_API}/sendMessage`, {
       chat_id: chatId,
-      text: `Giá Buni hiện tại: ${response?.data[0]?.current_price} ${lowPrice}/${highPrice}`,
+      text: `Giá Buni hiện tại: ${response.data[0].current_price} ${lowPrice}/${highPrice}`,
     });
   }
 };
 
 let interval;
 app.post(URI, async (req, res) => {
-  const chatId = req.body?.message?.chat?.id;
-  const text = req.body?.message?.text;
+  const chatId = req.body.message.chat.id;
+  const text = req.body.message.text;
   try {
     const textArr = text.split(" ");
     if (textArr && textArr.length && textArr[0].toLowerCase() == "low" && textArr[1]) {
@@ -76,7 +76,7 @@ app.post(URI, async (req, res) => {
     //   },
     // });
     // console.log("================================================");
-    // console.log("coinmarketcap", coinmarketcap?.data?.data);
+    // console.log("coinmarketcap", coinmarketcap.data.data);
     // console.log("================================================");
     reloadAndSendNewPrice(chatId, textArr[0].toLowerCase() !== "low" && textArr[0].toLowerCase() !== "high");
     clearInterval(interval);
@@ -92,7 +92,7 @@ app.post(URI, async (req, res) => {
     console.log("================================================");
     await axios.post(`${TELEGRAM_API}/sendMessage`, {
       chat_id: chatId,
-      text: `Đã xảy ra lỗi: ${error?.message}`,
+      text: `Đã xảy ra lỗi: ${error.message}`,
     });
     res.send();
   }
