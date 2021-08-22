@@ -158,11 +158,17 @@ const crawData = async (url) => {
   console.log("currentPrice", currentPrice);
   console.log("================================================");
   await browser.close();
+  console.log("================================================");
+  console.log("Close done");
+  console.log("================================================");
   return currentPrice.split("$")[1];
 };
 
 app.get("/html", async (req, res) => {
   const currentPrice = await crawData("https://dextools.bunicorn.exchange");
+  console.log("================================================");
+  console.log("currentPrice", currentPrice);
+  console.log("================================================");
   res.send({ data: currentPrice });
 });
 
