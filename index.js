@@ -144,7 +144,7 @@ const crawData = async (url) => {
   console.log("================================================");
   console.log("start lauch");
   console.log("================================================");
-  const browser = await puppeteer.launch({ args: ["--no-sandbox"] });
+  const browser = await puppeteer.launch({ args: ["--no-sandbox", "--proxy-server='direct://'", "--proxy-bypass-list=*"] });
   console.log("================================================");
   console.log("Lauch done");
   console.log("================================================");
