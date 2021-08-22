@@ -20,32 +20,77 @@ const initWebhook = async () => {
 let lowPrice = 0.1;
 let highPrice = 0.3;
 
+const API_KEYS = [
+  "36e8926c-7d7c-4b85-8bbe-bbe091442f4c",
+  "67b04b15-7f7f-4e1c-976c-724a004db9cb",
+  "d325d22f-b7ef-4fa3-8e08-9ab13f073dc1",
+  "28393754-4cb9-415e-8647-9c810cbd6cad",
+  "464be171-d946-49cf-8516-df540a96547c",
+  "68282cff-53a3-4d9c-8df7-de2fe09b5c04",
+  "43d48803-b571-4bff-bfdd-00a8843e9955",
+  "6ba05887-926f-44cc-8ea9-e575f7e66a29",
+  "2eea606e-48e6-48f6-a31e-b0bae35a4316",
+  "d7fb4126-b5fb-4346-b487-8ea4caf6aca0",
+  "941b93b7-bd1f-476a-82e9-ba6ba493649b",
+  "0fa2052d-2e6b-4462-b626-8364d3dedde5",
+  "96635db6-db82-4c3a-8efd-0deadbc9f7b1",
+  "0648b37f-ec95-421b-8ab3-ed64d3cec768",
+  "2e8fd590-2429-4337-8e02-5e9a23820d5c",
+  "efd5c369-0716-475e-83a5-ded4c422ac8a",
+  "662e4510-a4ba-45ca-9285-3bc785b263d2",
+  "444c45fa-9e4a-41a4-84fd-4fc72f5bf448",
+];
+
 const reloadAndSendNewPrice = async (chatId, forceSend = false) => {
-  console.log("================================================");
-  console.log("lowPrice", lowPrice);
-  console.log("highPrice", highPrice);
-  console.log("================================================");
-  const response = await axios.get("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bunicorn");
-  const currentPrice = response.data[0].current_price;
-  if (parseFloat(currentPrice) < lowPrice) {
-    await axios.post(`${TELEGRAM_API}/sendMessage`, {
-      chat_id: chatId,
-      text: `Giá Buni THẤP hơn giá set: ${response.data[0].current_price} ${lowPrice}/${highPrice}`,
-    });
-    return;
-  }
-  if (parseFloat(currentPrice) > highPrice) {
-    await axios.post(`${TELEGRAM_API}/sendMessage`, {
-      chat_id: chatId,
-      text: `Giá Buni CAO hơn giá set: ${response.data[0].current_price} ${lowPrice}/${highPrice}`,
-    });
-    return;
-  }
-  if (forceSend) {
-    await axios.post(`${TELEGRAM_API}/sendMessage`, {
-      chat_id: chatId,
-      text: `Giá Buni hiện tại: ${response.data[0].current_price} ${lowPrice}/${highPrice}`,
-    });
+  try {
+    const randomIndex = Math.floor(Math.random() * API_KEYS.length);
+    const [coinmarketcap, response] = await Promise.all([
+      axios.get("https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?id=9906", {
+        headers: {
+          "X-CMC_PRO_API_KEY": API_KEYS[randomIndex],
+        },
+      }),
+      axios.get("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bunicorn"),
+    ]);
+
+    const data = coinmarketcap.data.data;
+    const bunicoin = data["9906"];
+    const buniPrice = bunicoin.quote["USD"].price;
+    const currentPrice = response.data[0].current_price;
+
+    if (parseFloat(buniPrice) < lowPrice) {
+      await axios.post(`${TELEGRAM_API}/sendMessage`, {
+        chat_id: chatId,
+        text: `Buni THẤP: <b><i>${parseFloat(buniPrice).toFixed(3)}</i></b>\nCoinGeck: <i>${parseFloat(currentPrice).toFixed(
+          3
+        )}</i>\nThấp/Cao: <i>${lowPrice}</i>/<i>${highPrice}</i>`,
+        parse_mode: "markdown",
+      });
+      return;
+    }
+    if (parseFloat(buniPrice) > highPrice) {
+      await axios.post(`${TELEGRAM_API}/sendMessage`, {
+        chat_id: chatId,
+        text: `Buni CAO: <b><i>${parseFloat(buniPrice).toFixed(3)}</i></b>\nCoinGeck: <i>${parseFloat(currentPrice).toFixed(
+          3
+        )}</i>\nThấp/Cao: <i>${lowPrice}</i>/<i>${highPrice}</i>`,
+        parse_mode: "html",
+      });
+      return;
+    }
+    if (forceSend) {
+      await axios.post(`${TELEGRAM_API}/sendMessage`, {
+        chat_id: chatId,
+        text: `Buni hiện tại: <b><i>${parseFloat(buniPrice).toFixed(3)}</i></b>\nCoinGeck: <i>${parseFloat(currentPrice).toFixed(
+          3
+        )}</i>\nThấp/Cao: <i>${lowPrice}</i>/<i>${highPrice}</i>`,
+        parse_mode: "markdown",
+      });
+    }
+  } catch (error) {
+    console.log("================================================");
+    console.log("reloadAndSendNewPrice._error: ", error);
+    console.log("================================================");
   }
 };
 
@@ -70,14 +115,6 @@ app.post(URI, async (req, res) => {
       });
     }
 
-    // const coinmarketcap = await axios.get("https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?id=9906", {
-    //   headers: {
-    //     "X-CMC_PRO_API_KEY": "36e8926c-7d7c-4b85-8bbe-bbe091442f4c",
-    //   },
-    // });
-    // console.log("================================================");
-    // console.log("coinmarketcap", coinmarketcap.data.data);
-    // console.log("================================================");
     reloadAndSendNewPrice(chatId, textArr[0].toLowerCase() !== "low" && textArr[0].toLowerCase() !== "high");
     clearInterval(interval);
 
