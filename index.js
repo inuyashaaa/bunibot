@@ -156,7 +156,7 @@ const crawData = async (url) => {
   console.log("New page");
   console.log("================================================");
   await page.goto(url, {
-    waitUntil: "load",
+    waitUntil: "networkidle0",
     timeout: 0,
   });
   console.log("================================================");
