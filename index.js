@@ -150,7 +150,8 @@ const crawData = async (url) => {
   console.log("================================================");
   const page = await browser.newPage();
   await page.goto(url, {
-    waitUntil: "networkidle2",
+    waitUntil: "load",
+    timeout: 0,
   });
 
   const currentPrice = await page.evaluate((el) => el.innerHTML, await page.$(".price"));
