@@ -2,6 +2,9 @@ require("dotenv").config();
 
 const express = require("express");
 const bodyParser = require("body-parser");
+const puppeteer = require("puppeteer");
+const HTMLParser = require("node-html-parser");
+
 const axios = require("axios");
 const { TOKEN, SERVER_URL, PORT } = process.env;
 const TELEGRAM_API = `https://api.telegram.org/bot${TOKEN}`;
@@ -135,6 +138,26 @@ app.post(URI, async (req, res) => {
   }
 });
 
+const crawData = async (url) => {
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  await page.goto(url, {
+    waitUntil: "networkidle2",
+  });
+
+  const currentPrice = await page.evaluate((el) => el.innerHTML, await page.$(".price"));
+  console.log("================================================");
+  console.log("currentPrice", currentPrice);
+  console.log("================================================");
+  await browser.close();
+  return currentPrice.split("$")[1];
+};
+
+app.get("/html", async (req, res) => {
+  const currentPrice = await crawData("https://dextools.bunicorn.exchange");
+  res.send({ data: currentPrice });
+});
+
 // API for verifying server is running, show latest git commit info
 app.get("/", function (req, res) {
   const cmd = "git log -n 1";
@@ -165,5 +188,5 @@ app.listen(PORT || 6464, async () => {
   console.log("================================================");
   console.log("App is running on port: ", PORT || 6464);
   console.log("================================================");
-  await initWebhook();
+  // await initWebhook();
 });
