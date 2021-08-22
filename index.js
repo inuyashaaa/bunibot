@@ -140,7 +140,7 @@ app.post(URI, async (req, res) => {
 
 const crawData = async (url) => {
   const browserFetcher = puppeteer.createBrowserFetcher();
-  const revisionInfo = await browserFetcher.download("r901912");
+  const revisionInfo = await browserFetcher.download("901912");
   console.log("================================================");
   console.log("start lauch");
   console.log("================================================");
