@@ -139,7 +139,15 @@ app.post(URI, async (req, res) => {
 });
 
 const crawData = async (url) => {
-  const browser = await puppeteer.launch({ args: ["--no-sandbox"] });
+  const browserFetcher = puppeteer.createBrowserFetcher();
+  const revisionInfo = await browserFetcher.download("r901912");
+  console.log("================================================");
+  console.log("start lauch");
+  console.log("================================================");
+  const browser = await puppeteer.launch({ args: ["--no-sandbox"], executablePath: revisionInfo.executablePath });
+  console.log("================================================");
+  console.log("Lauch done");
+  console.log("================================================");
   const page = await browser.newPage();
   await page.goto(url, {
     waitUntil: "networkidle2",
