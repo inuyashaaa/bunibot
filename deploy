@@ -1,0 +1,10 @@
+#!/bin/bash
+
+git reset --hard HEAD
+
+git pull
+
+npm i
+
+PROCESS_NAME="$1"
+pm2 restart $PROCESS_NAME
