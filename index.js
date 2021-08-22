@@ -61,8 +61,8 @@ const reloadAndSendNewPrice = async (chatId, forceSend = false) => {
     if (parseFloat(buniPrice) < lowPrice) {
       await axios.post(`${TELEGRAM_API}/sendMessage`, {
         chat_id: chatId,
-        text: `Buni THẤP: <b><i>${parseFloat(buniPrice).toFixed(3)}</i></b>\nCoinGeck: <i>${parseFloat(currentPrice).toFixed(
-          3
+        text: `Buni THẤP: <b><i>${parseFloat(buniPrice).toFixed(4)}</i></b>\nCoinGeck: <i>${parseFloat(currentPrice).toFixed(
+          4
         )}</i>\nThấp/Cao: <i>${lowPrice}</i>/<i>${highPrice}</i>`,
         parse_mode: "html",
       });
@@ -71,8 +71,8 @@ const reloadAndSendNewPrice = async (chatId, forceSend = false) => {
     if (parseFloat(buniPrice) > highPrice) {
       await axios.post(`${TELEGRAM_API}/sendMessage`, {
         chat_id: chatId,
-        text: `Buni CAO: <b><i>${parseFloat(buniPrice).toFixed(3)}</i></b>\nCoinGeck: <i>${parseFloat(currentPrice).toFixed(
-          3
+        text: `Buni CAO: <b><i>${parseFloat(buniPrice).toFixed(4)}</i></b>\nCoinGeck: <i>${parseFloat(currentPrice).toFixed(
+          4
         )}</i>\nThấp/Cao: <i>${lowPrice}</i>/<i>${highPrice}</i>`,
         parse_mode: "html",
       });
@@ -81,8 +81,8 @@ const reloadAndSendNewPrice = async (chatId, forceSend = false) => {
     if (forceSend) {
       await axios.post(`${TELEGRAM_API}/sendMessage`, {
         chat_id: chatId,
-        text: `Buni hiện tại: <b><i>${parseFloat(buniPrice).toFixed(3)}</i></b>\nCoinGeck: <i>${parseFloat(currentPrice).toFixed(
-          3
+        text: `Buni hiện tại: <b><i>${parseFloat(buniPrice).toFixed(4)}</i></b>\nCoinGeck: <i>${parseFloat(currentPrice).toFixed(
+          4
         )}</i>\nThấp/Cao: <i>${lowPrice}</i>/<i>${highPrice}</i>`,
         parse_mode: "html",
       });
