@@ -149,11 +149,16 @@ const crawData = async (url) => {
   console.log("Lauch done");
   console.log("================================================");
   const page = await browser.newPage();
+  console.log("================================================");
+  console.log("New page");
+  console.log("================================================");
   await page.goto(url, {
     waitUntil: "load",
     timeout: 0,
   });
-
+  console.log("================================================");
+  console.log("Goto Page");
+  console.log("================================================");
   const currentPrice = await page.evaluate((el) => el.innerHTML, await page.$(".price"));
   console.log("================================================");
   console.log("currentPrice", currentPrice);
@@ -203,5 +208,5 @@ app.listen(PORT || 6464, async () => {
   console.log("================================================");
   console.log("App is running on port: ", PORT || 6464);
   console.log("================================================");
-  // await initWebhook();
+  await initWebhook();
 });
