@@ -136,49 +136,6 @@ app.post(URI, async (req, res) => {
   }
 });
 
-// const crawData = async (url) => {
-//   // const browserFetcher = puppeteer.createBrowserFetcher();
-//   // const revisionInfo = await browserFetcher.download("901912");
-//   console.log("================================================");
-//   console.log("start lauch");
-//   console.log("================================================");
-//   const browser = await puppeteer.launch({ args: ["--no-sandbox", "--proxy-server='direct://'", "--proxy-bypass-list=*"] });
-//   console.log("================================================");
-//   console.log("Lauch done");
-//   console.log("================================================");
-//   const page = await browser.newPage();
-//   await page.setUserAgent(
-//     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36"
-//   );
-//   console.log("================================================");
-//   console.log("New page");
-//   console.log("================================================");
-//   await page.goto(url, {
-//     waitUntil: "networkidle0",
-//     timeout: 0,
-//   });
-//   console.log("================================================");
-//   console.log("Goto Page");
-//   console.log("================================================");
-//   const currentPrice = await page.evaluate((el) => el.innerHTML, await page.$(".price"));
-//   console.log("================================================");
-//   console.log("currentPrice", currentPrice);
-//   console.log("================================================");
-//   await browser.close();
-//   console.log("================================================");
-//   console.log("Close done");
-//   console.log("================================================");
-//   return currentPrice.split("$")[1];
-// };
-
-// app.get("/html", async (req, res) => {
-//   const currentPrice = await crawData("https://dextools.bunicorn.exchange");
-//   console.log("================================================");
-//   console.log("currentPrice", currentPrice);
-//   console.log("================================================");
-//   res.send({ data: currentPrice });
-// });
-
 // API for verifying server is running, show latest git commit info
 app.get("/", function (req, res) {
   const cmd = "git log -n 1";
