@@ -43,33 +43,76 @@ const API_KEYS = [
   "444c45fa-9e4a-41a4-84fd-4fc72f5bf448",
 ];
 
+const subgraphUrl = "https://graph.bunicorn.exchange/subgraphs/name/bunicorndefi/buni-token";
+const queryBuni = {
+  tokenPrice: {
+    __args: {
+      id: "0x0E7BeEc376099429b85639Eb3abE7cF22694ed49".toLowerCase(),
+    },
+  },
+};
+
+const queryBur = {
+  tokenPrice: {
+    __args: {
+      id: "0xc1619D98847CF93d857DFEd4e4d70CF4f984Bd56".toLowerCase(),
+    },
+  },
+};
+
+const getBuniPrice = {
+  tokenPrice: {
+    id: true,
+    symbol: true,
+    name: true,
+    decimals: true,
+    price: true,
+  },
+};
+const subgraphRequest = async (url, query) => {
+  const res = await axios.post(
+    url,
+    {
+      query: jsonToGraphQLQuery({ query }),
+    },
+    {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  const data = res.data;
+  return data || {};
+};
+
 const reloadAndSendNewPrice = async (chatId, forceSend = false) => {
   try {
-    const randomIndex = Math.floor(Math.random() * API_KEYS.length);
-    const [coinmarketcap, response] = await Promise.all([
-      axios.get("https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?id=9906", {
-        headers: {
-          "X-CMC_PRO_API_KEY": API_KEYS[randomIndex],
-        },
-      }),
-      axios.get("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bunicorn"),
+    // const randomIndex = Math.floor(Math.random() * API_KEYS.length);
+    // const [coinmarketcap, response] = await Promise.all([
+    //   axios.get("https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?id=9906", {
+    //     headers: {
+    //       "X-CMC_PRO_API_KEY": API_KEYS[randomIndex],
+    //     },
+    //   }),
+    //   axios.get("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bunicorn"),
+    // ]);
+
+    const [responseBuni, responseBur] = await Promise.all([
+      subgraphRequest(subgraphUrl, _.merge(getBuniPrice, queryBuni)),
+      subgraphRequest(subgraphUrl, _.merge(getBuniPrice, queryBur)),
     ]);
 
-    const responseBuni = await subgraphRequest(subgraphUrl, _.merge(getBuniPrice, query));
-    const tokenPrice = responseBuni.data.tokenPrice.price;
-    console.log("================================================");
-    console.log("tokenPrice", tokenPrice);
-    console.log("================================================");
-
-    const data = coinmarketcap.data.data;
-    const bunicoin = data["9906"];
-    const buniPrice = tokenPrice;
-    const currentPrice = response.data[0].current_price;
+    // const responseBuni = await subgraphRequest(subgraphUrl, _.merge(getBuniPrice, queryBuni));
+    // const responseBur = await subgraphRequest(subgraphUrl, _.merge(getBuniPrice, queryBur));
+    const buniPrice = responseBuni.data.tokenPrice.price;
+    const burPrice = responseBur.data.tokenPrice.price;
 
     if (parseFloat(buniPrice) < lowPrice) {
       await axios.post(`${TELEGRAM_API}/sendMessage`, {
         chat_id: chatId,
-        text: `Buni THẤP: <b><i>${parseFloat(buniPrice).toFixed(4)}</i></b>\nCoinGeck: <i>${parseFloat(currentPrice).toFixed(
+        text: `Buni THẤP: <b><i>${parseFloat(buniPrice).toFixed(4)}</i></b>\nBur: <i>${parseFloat(burPrice).toFixed(
           4
         )}</i>\nThấp/Cao: <i>${lowPrice}</i>/<i>${highPrice}</i>`,
         parse_mode: "html",
@@ -79,7 +122,7 @@ const reloadAndSendNewPrice = async (chatId, forceSend = false) => {
     if (parseFloat(buniPrice) > highPrice) {
       await axios.post(`${TELEGRAM_API}/sendMessage`, {
         chat_id: chatId,
-        text: `Buni CAO: <b><i>${parseFloat(buniPrice).toFixed(4)}</i></b>\nCoinGeck: <i>${parseFloat(currentPrice).toFixed(
+        text: `Buni CAO: <b><i>${parseFloat(buniPrice).toFixed(4)}</i></b>\nBur: <i>${parseFloat(burPrice).toFixed(
           4
         )}</i>\nThấp/Cao: <i>${lowPrice}</i>/<i>${highPrice}</i>`,
         parse_mode: "html",
@@ -89,7 +132,7 @@ const reloadAndSendNewPrice = async (chatId, forceSend = false) => {
     if (forceSend) {
       await axios.post(`${TELEGRAM_API}/sendMessage`, {
         chat_id: chatId,
-        text: `Buni hiện tại: <b><i>${parseFloat(buniPrice).toFixed(4)}</i></b>\nCoinGeck: <i>${parseFloat(currentPrice).toFixed(
+        text: `Buni hiện tại: <b><i>${parseFloat(buniPrice).toFixed(4)}</i></b>\nBur: <i>${parseFloat(burPrice).toFixed(
           4
         )}</i>\nThấp/Cao: <i>${lowPrice}</i>/<i>${highPrice}</i>`,
         parse_mode: "html",
@@ -141,54 +184,6 @@ app.post(URI, async (req, res) => {
     });
     res.send();
   }
-});
-
-const subgraphUrl = "https://graph.bunicorn.exchange/subgraphs/name/bunicorndefi/buni-token";
-const query = {
-  tokenPrice: {
-    __args: {
-      id: "0x0E7BeEc376099429b85639Eb3abE7cF22694ed49".toLowerCase(),
-    },
-  },
-};
-const getBuniPrice = {
-  tokenPrice: {
-    id: true,
-    symbol: true,
-    name: true,
-    decimals: true,
-    price: true,
-  },
-};
-const subgraphRequest = async (url, query) => {
-  const res = await axios.post(
-    url,
-    {
-      query: jsonToGraphQLQuery({ query }),
-    },
-    {
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-    }
-  );
-
-  const data = res.data;
-  return data || {};
-};
-
-// API for verifying server is running, show latest git commit info
-app.get("/price", async (req, res) => {
-  const response = await subgraphRequest(subgraphUrl, _.merge(getBuniPrice, query));
-  const tokenPrice = response.data.tokenPrice.price;
-  console.log("================================================");
-  console.log("tokenPrice", tokenPrice);
-  console.log("================================================");
-  if (!tokenPrice) {
-    return 0;
-  }
-  res.status(200).send("Price: " + parseFloat(tokenPrice));
 });
 
 // API for verifying server is running, show latest git commit info
