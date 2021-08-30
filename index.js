@@ -108,7 +108,10 @@ const reloadAndSendNewPrice = async (chatId, forceSend = false) => {
     // const responseBur = await subgraphRequest(subgraphUrl, _.merge(getBuniPrice, queryBur));
     const buniPrice = responseBuni.data.tokenPrice.price;
     const burPrice = responseBur.data.tokenPrice.price;
-
+    console.log("================================================");
+    console.log("buniPrice", buniPrice);
+    console.log("burPrice", burPrice);
+    console.log("================================================");
     if (parseFloat(buniPrice) < lowPrice) {
       await axios.post(`${TELEGRAM_API}/sendMessage`, {
         chat_id: chatId,
@@ -153,6 +156,9 @@ app.post(URI, async (req, res) => {
     const textArr = text.split(" ");
     if (textArr && textArr.length && textArr[0].toLowerCase() == "low" && textArr[1]) {
       lowPrice = parseFloat(textArr[1] || 0.1);
+      console.log("================================================");
+      console.log("Đã set giá thấp nhất", lowPrice);
+      console.log("================================================");
       await axios.post(`${TELEGRAM_API}/sendMessage`, {
         chat_id: chatId,
         text: `Đã set giá thấp nhất: ${lowPrice}`,
@@ -160,6 +166,9 @@ app.post(URI, async (req, res) => {
     }
     if (textArr && textArr.length && textArr[0].toLowerCase() == "high" && textArr[1]) {
       highPrice = parseFloat(textArr[1] || 0.2);
+      console.log("================================================");
+      console.log("Đã set giá cao nhất", highPrice);
+      console.log("================================================");
       await axios.post(`${TELEGRAM_API}/sendMessage`, {
         chat_id: chatId,
         text: `Đã set giá cao nhất: ${highPrice}`,
