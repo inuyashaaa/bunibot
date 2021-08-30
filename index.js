@@ -1,8 +1,9 @@
 require("dotenv").config();
 
+const _ = require("lodash");
 const express = require("express");
 const bodyParser = require("body-parser");
-
+const { jsonToGraphQLQuery } = require("json-to-graphql-query");
 const axios = require("axios");
 const { TOKEN, SERVER_URL, PORT } = process.env;
 const TELEGRAM_API = `https://api.telegram.org/bot${TOKEN}`;
@@ -54,9 +55,15 @@ const reloadAndSendNewPrice = async (chatId, forceSend = false) => {
       axios.get("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bunicorn"),
     ]);
 
+    const responseBuni = await subgraphRequest(subgraphUrl, _.merge(getBuniPrice, query));
+    const tokenPrice = responseBuni.data.tokenPrice.price;
+    console.log("================================================");
+    console.log("tokenPrice", tokenPrice);
+    console.log("================================================");
+
     const data = coinmarketcap.data.data;
     const bunicoin = data["9906"];
-    const buniPrice = bunicoin.quote["USD"].price;
+    const buniPrice = tokenPrice;
     const currentPrice = response.data[0].current_price;
 
     if (parseFloat(buniPrice) < lowPrice) {
@@ -134,6 +141,54 @@ app.post(URI, async (req, res) => {
     });
     res.send();
   }
+});
+
+const subgraphUrl = "https://graph.bunicorn.exchange/subgraphs/name/bunicorndefi/buni-token";
+const query = {
+  tokenPrice: {
+    __args: {
+      id: "0x0E7BeEc376099429b85639Eb3abE7cF22694ed49".toLowerCase(),
+    },
+  },
+};
+const getBuniPrice = {
+  tokenPrice: {
+    id: true,
+    symbol: true,
+    name: true,
+    decimals: true,
+    price: true,
+  },
+};
+const subgraphRequest = async (url, query) => {
+  const res = await axios.post(
+    url,
+    {
+      query: jsonToGraphQLQuery({ query }),
+    },
+    {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  const data = res.data;
+  return data || {};
+};
+
+// API for verifying server is running, show latest git commit info
+app.get("/price", async (req, res) => {
+  const response = await subgraphRequest(subgraphUrl, _.merge(getBuniPrice, query));
+  const tokenPrice = response.data.tokenPrice.price;
+  console.log("================================================");
+  console.log("tokenPrice", tokenPrice);
+  console.log("================================================");
+  if (!tokenPrice) {
+    return 0;
+  }
+  res.status(200).send("Price: " + parseFloat(tokenPrice));
 });
 
 // API for verifying server is running, show latest git commit info
